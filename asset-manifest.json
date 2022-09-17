@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/address-book/static/css/main.798cee6f.css",
+    "main.js": "/address-book/static/js/main.d93ca6ec.js",
+    "index.html": "/address-book/index.html",
+    "main.798cee6f.css.map": "/address-book/static/css/main.798cee6f.css.map",
+    "main.d93ca6ec.js.map": "/address-book/static/js/main.d93ca6ec.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.798cee6f.css",
+    "static/js/main.d93ca6ec.js"
+  ]
+}
