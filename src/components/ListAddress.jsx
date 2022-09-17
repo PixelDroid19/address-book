@@ -7,7 +7,8 @@ import Col from "react-bootstrap/Col";
 import Table from "react-bootstrap/Table";
 import { AddressGet } from "../axios/AddresApi";
 
-export const ListAddress = () => {
+export const 
+ListAddress = () => {
   const [Data, SetData] = useState([]);
   const [Edit, SetEdit] = useState(false);
 
