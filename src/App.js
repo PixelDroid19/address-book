@@ -1,5 +1,5 @@
 import "./App.css";
-import { ListAddress } from "./components/ListAddress";
+import ListAddress from "./components/ListAddress";
 
 
 const App = () => {

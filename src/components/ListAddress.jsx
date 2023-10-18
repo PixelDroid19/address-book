@@ -1,67 +1,100 @@
-import React, { useState, useEffect } from 'react'
-import Button from 'react-bootstrap/Button'
-import Form from 'react-bootstrap/Form'
-import Container from 'react-bootstrap/Container'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
-import Table from 'react-bootstrap/Table'
-import { AddressGet } from '../axios/AddresApi'
-import useForm from '../hook/useForm'
-import ContactItem from './ContactItem'
+import React, { useState, useEffect } from 'react';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Table from 'react-bootstrap/Table';
+import { apiClient } from '../axios/AddresApi';
+import useForm from '../hook/useForm';
+import ContactItem from './ContactItem';
 
-const initialState = {
-  nombre: '',
-  apellido: '',
-  telefono: '',
-  direccion: ''
-}
+const ListAddress = () => {
+  const initialState = {
+    nombre: '',
+    apellido: '',
+    telefono: '',
+    direccion: '',
+  };
 
-export const ListAddress = () => {
-  const { handleInputChange, values } = useForm({ initialState })
+  // Custom hook for form handling
+  const { handleInputChange, values, setValues } = useForm({
+    initialState
+  });
 
-  const [Data, SetData] = useState([])
+  // State for storing contact data
+  const [data, setData] = useState([]);
 
-  //Get Event
-  const GetData = async () => {
-    const resp = await AddressGet.get('/contactos')
-    SetData(resp['data'])
-  }
+  // Function to fetch contact data from the API
+  const fetchContactData = async () => {
+    try {
+      const response = await apiClient.get('/contactos');
+      if (response.status === 200) {
+        setData(response.data);
+      } else {
+        console.error(`Request failed with status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error(`An error occurred: ${error.message}`);
+    }
+  };
+
+  // Function to delete a contact
+  const deleteContact = async (id) => {
+    try {
+      const response = await apiClient.delete(`/contactos/${id}`);
+      if (response.status === 200) {
+        fetchContactData();
+      } else {
+        console.error(`Request failed with status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error(`An error occurred: ${error.message}`);
+    }
+  };
+
+  // Function to create a contact
+  const createContact = async () => {
+    try {
+      const response = await apiClient.post('/contactos', values);
+      if (response.status === 201) {
+        setValues(initialState);
+        fetchContactData();
+      } else {
+        console.error(`Failed to create contact with status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error(`An error occurred while creating the contact: ${error.message}`);
+    }
+  };
+
+  // Function to update a contact
+  const updateContact = async (data) => {
+    try {
+      const response = await apiClient.put(`/contactos/${data?.id}`, data);
+      if (response.status === 200) {
+        fetchContactData();
+      } else {
+        console.error(`Failed to update contact with status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error(`An error occurred while updating the contact: ${error.message}`);
+    }
+  };
 
   useEffect(() => {
-    GetData()
-  }, [])
-
-  /*delete Event*/
-  const Delete = async id => {
-    const resp = await AddressGet.delete(`/contactos/${id}`)
-    if (resp.status === 200) {
-      GetData()
-    }
-  }
-
-  //Post Event
-  const SetFormButton = async () => {
-    const resp = await AddressGet.post('/contactos', values)
-    if (resp.status === 201) {
-      GetData()
-    }
-  }
-
-  const SetDataEdit = async data => {
-    const resp = await AddressGet.put(`/contactos/${data?.id}`, data)
-    if (resp.status === 200) {
-      GetData()
-    }
-  }
+    fetchContactData();
+  }, []);
 
   return (
     <Container fluid>
       <Row className='roomfac fontReg'>
         <Col xs={5} className='User'>
-          <Form.Group className='mb-3'>
+        <Form.Group className='mb-3'>
             <Form.Label>Nombre</Form.Label>
             <Form.Control
               type='text'
+              value={values?.nombre}
               name='nombre'
               placeholder='Nombre'
               onChange={handleInputChange}
@@ -69,19 +102,21 @@ export const ListAddress = () => {
           </Form.Group>
 
           <Form.Group className='mb-3'>
-            <Form.Label>apellido</Form.Label>
+            <Form.Label>Apellido</Form.Label>
             <Form.Control
               type='text'
               name='apellido'
-              placeholder='apellido'
+              value={values?.apellido}
+              placeholder='Apellido'
               onChange={handleInputChange}
             />
           </Form.Group>
 
           <Form.Group className='mb-3'>
-            <Form.Label>direccion</Form.Label>
+            <Form.Label>Dirección</Form.Label>
             <Form.Control
               type='text'
+              value={values?.direccion}
               name='direccion'
               placeholder='Dirección'
               onChange={handleInputChange}
@@ -89,16 +124,17 @@ export const ListAddress = () => {
           </Form.Group>
 
           <Form.Group className='mb-3'>
-            <Form.Label>telefono</Form.Label>
+            <Form.Label>Teléfono</Form.Label>
             <Form.Control
               type='number'
               name='telefono'
-              placeholder='telefono'
+              value={values?.telefono}
+              placeholder='Teléfono'
               onChange={handleInputChange}
             />
           </Form.Group>
 
-          <Button variant='primary' onClick={() => SetFormButton()}>
+          <Button variant='primary' onClick={createContact}>
             Enviar
           </Button>
         </Col>
@@ -115,19 +151,19 @@ export const ListAddress = () => {
               </tr>
             </thead>
 
-            {Data.map((contact, i) => {
-              return (
-                <ContactItem
-                  key={i}
-                  contactData={contact}
-                  addToDatabase={SetDataEdit}
-                  contactDelete={Delete}
-                />
-              )
-            })}
+            {data.map((contact, i) => (
+              <ContactItem
+                key={i}
+                contactData={contact}
+                addToDatabase={updateContact}
+                contactDelete={deleteContact}
+              />
+            ))}
           </Table>
         </Col>
       </Row>
     </Container>
-  )
-}
+  );
+};
+
+export default ListAddress;
