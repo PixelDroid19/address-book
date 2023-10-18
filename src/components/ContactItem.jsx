@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Form, Table } from 'react-bootstrap'
+import { Button, Form } from 'react-bootstrap'
 import useForm from '../hook/useForm'
 
 const initialState = {
@@ -20,7 +20,7 @@ const ContactItem = ({
 
   useEffect(() => {
     setValues(contactData)
-  }, [contactData])
+  }, [contactData, setValues])
 
   const targetToEdit = id => {
     const editData = { ...values, id }
